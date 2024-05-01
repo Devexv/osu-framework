@@ -13,12 +13,12 @@ namespace osu.Framework.Graphics.Colour
     /// Internally this struct stores the colour in sRGB space, which is exposed by the <see cref="SRGB"/> member.
     /// This struct converts to linear space by using the <see cref="Linear"/> member.
     /// </summary>
-    public struct SRGBColour : IEquatable<SRGBColour>
+    public readonly struct SRGBColour : IEquatable<SRGBColour>
     {
         /// <summary>
         /// A <see cref="Color4"/> representation of this colour in the sRGB space.
         /// </summary>
-        public Color4 SRGB;
+        public readonly Color4 SRGB;
 
         /// <summary>
         /// A <see cref="Color4"/> representation of this colour in the linear space.
@@ -30,11 +30,25 @@ namespace osu.Framework.Graphics.Colour
         /// </summary>
         public float Alpha => SRGB.A;
 
-        // todo: these implicit operators should be replaced with explicit static methods (https://github.com/ppy/osu-framework/issues/5714).
-        public static implicit operator SRGBColour(Color4 value) => new SRGBColour { SRGB = value };
+        private SRGBColour(Color4 color) => SRGB = color;
+        private SRGBColour(Colour4 colour) => SRGB = colour;
+
+        public static SRGBColour FromLinear(Color4 color) => new SRGBColour(color.ToSRGB());
+        public static SRGBColour FromLinear(Colour4 colour) => new SRGBColour(colour.ToSRGB());
+
+        public static SRGBColour FromSRGB(Color4 color) => new SRGBColour(color);
+        public static SRGBColour FromSRGB(Colour4 colour) => new SRGBColour(colour);
+
+        [Obsolete("Use FromSRGB or FromLinear instead")]
+        public static implicit operator SRGBColour(Color4 value) => new SRGBColour(value);
+
+        [Obsolete("Use FromSRGB or FromLinear instead")]
         public static implicit operator Color4(SRGBColour value) => value.SRGB;
 
-        public static implicit operator SRGBColour(Colour4 value) => new SRGBColour { SRGB = value };
+        [Obsolete("Use FromSRGB or FromLinear instead")]
+        public static implicit operator SRGBColour(Colour4 value) => new SRGBColour(value);
+
+        [Obsolete("Use FromSRGB or FromLinear instead")]
         public static implicit operator Colour4(SRGBColour value) => value.SRGB;
 
         public static SRGBColour operator *(SRGBColour first, SRGBColour second)
@@ -42,28 +56,28 @@ namespace osu.Framework.Graphics.Colour
             var firstLinear = first.Linear;
             var secondLinear = second.Linear;
 
-            return new SRGBColour
-            {
-                SRGB = new Color4(
+            return FromLinear
+            (
+                new Color4(
                     firstLinear.R * secondLinear.R,
                     firstLinear.G * secondLinear.G,
                     firstLinear.B * secondLinear.B,
-                    firstLinear.A * secondLinear.A).ToSRGB(),
-            };
+                    firstLinear.A * secondLinear.A)
+            );
         }
 
         public static SRGBColour operator *(SRGBColour first, float second)
         {
             var firstLinear = first.Linear;
 
-            return new SRGBColour
-            {
-                SRGB = new Color4(
+            return FromLinear
+            (
+                new Color4(
                     firstLinear.R * second,
                     firstLinear.G * second,
                     firstLinear.B * second,
-                    firstLinear.A * second).ToSRGB(),
-            };
+                    firstLinear.A * second)
+            );
         }
 
         public static SRGBColour operator /(SRGBColour first, float second) => first * (1 / second);
@@ -73,26 +87,27 @@ namespace osu.Framework.Graphics.Colour
             var firstLinear = first.Linear;
             var secondLinear = second.Linear;
 
-            return new SRGBColour
-            {
-                SRGB = new Color4(
+            return FromLinear
+            (
+                new Color4(
                     firstLinear.R + secondLinear.R,
                     firstLinear.G + secondLinear.G,
                     firstLinear.B + secondLinear.B,
-                    firstLinear.A + secondLinear.A).ToSRGB(),
-            };
+                    firstLinear.A + secondLinear.A)
+            );
         }
 
-        public readonly Vector4 ToVector() => new Vector4(SRGB.R, SRGB.G, SRGB.B, SRGB.A);
-        public static SRGBColour FromVector(Vector4 v) => new SRGBColour { SRGB = new Color4(v.X, v.Y, v.Z, v.W) };
+        public Vector4 ToVector() => new Vector4(SRGB.R, SRGB.G, SRGB.B, SRGB.A);
+        public static SRGBColour FromVector(Vector4 v) => new SRGBColour(new Color4(v.X, v.Y, v.Z, v.W));
 
         /// <summary>
-        /// Multiplies the alpha value of this colour by the given alpha factor.
+        /// Returns a new <see cref="SRGBColour"/> with the alpha value multiplied by the given factor.
         /// </summary>
         /// <param name="alpha">The alpha factor to multiply with.</param>
-        public void MultiplyAlpha(float alpha) => SRGB.A *= alpha;
+        /// <returns>A new <see cref="SRGBColour"/> instance with the adjusted alpha value.</returns>
+        public SRGBColour WithMultipliedAlpha(float alpha) => new SRGBColour(new Color4(SRGB.R, SRGB.G, SRGB.B, SRGB.A * alpha));
 
-        public readonly bool Equals(SRGBColour other) => SRGB.Equals(other.SRGB);
+        public bool Equals(SRGBColour other) => SRGB.Equals(other.SRGB);
         public override string ToString() => $"srgb: {SRGB}, linear: {Linear}";
     }
 }

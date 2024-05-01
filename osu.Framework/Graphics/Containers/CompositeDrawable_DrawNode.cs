@@ -144,10 +144,10 @@ namespace osu.Framework.Graphics.Containers
                 Shader.Bind();
 
                 ColourInfo colour = ColourInfo.SingleColour(edgeEffect.Colour);
-                colour.TopLeft.MultiplyAlpha(DrawColourInfo.Colour.TopLeft.Alpha);
-                colour.BottomLeft.MultiplyAlpha(DrawColourInfo.Colour.BottomLeft.Alpha);
-                colour.TopRight.MultiplyAlpha(DrawColourInfo.Colour.TopRight.Alpha);
-                colour.BottomRight.MultiplyAlpha(DrawColourInfo.Colour.BottomRight.Alpha);
+                colour.TopLeft = colour.TopLeft.WithMultipliedAlpha(DrawColourInfo.Colour.TopLeft.Alpha);
+                colour.BottomLeft = colour.BottomLeft.WithMultipliedAlpha(DrawColourInfo.Colour.BottomLeft.Alpha);
+                colour.TopRight = colour.TopRight.WithMultipliedAlpha(DrawColourInfo.Colour.TopRight.Alpha);
+                colour.BottomRight = colour.BottomRight.WithMultipliedAlpha(DrawColourInfo.Colour.BottomRight.Alpha);
 
                 renderer.DrawQuad(
                     renderer.WhitePixel,

@@ -175,18 +175,15 @@ namespace osu.Framework.Graphics.Colour
                 return this;
 
             if (TryExtractSingleColour(out SRGBColour single))
+                return single.WithMultipliedAlpha(alpha);
+
+            return new ColourInfo
             {
-                single.MultiplyAlpha(alpha);
-                return single;
-            }
-
-            ColourInfo result = this;
-            result.TopLeft.MultiplyAlpha(alpha);
-            result.BottomLeft.MultiplyAlpha(alpha);
-            result.TopRight.MultiplyAlpha(alpha);
-            result.BottomRight.MultiplyAlpha(alpha);
-
-            return result;
+                TopLeft = TopLeft.WithMultipliedAlpha(alpha),
+                BottomLeft = BottomLeft.WithMultipliedAlpha(alpha),
+                TopRight = TopRight.WithMultipliedAlpha(alpha),
+                BottomRight = BottomRight.WithMultipliedAlpha(alpha)
+            };
         }
 
         public readonly bool Equals(ColourInfo other)
